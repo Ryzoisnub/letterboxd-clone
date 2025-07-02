@@ -38,29 +38,30 @@ const sampleMovies = [
 
 function Home() {
   return (
-    <Box>
-      <Box css={heroStyle}>
-        <Typography variant="h3" gutterBottom>
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%)', fontFamily: 'SF Pro Display, Arial, sans-serif', py: 4 }}>
+      <Box sx={{ width: '100%', maxWidth: 900, mb: 4, mx: 'auto', background: '#fff', borderRadius: 6, boxShadow: 3, p: 4 }}>
+        <Typography variant="h3" gutterBottom align="center" sx={{ fontWeight: 700, color: '#222' }}>
           Welcome to Letterboxd Clone
         </Typography>
-        <Typography variant="h6">
+        <Typography variant="h6" align="center" sx={{ color: '#555' }}>
           Discover, review, and track your favorite movies!
         </Typography>
       </Box>
-      <Box sx={{ mt: 4 }}>
-        <Typography variant="h5" gutterBottom>All Movies</Typography>
-        <Grid container spacing={3}>
+      <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', background: '#fff', borderRadius: 6, boxShadow: 2, p: 3 }}>
+        <Typography variant="h5" gutterBottom align="center" sx={{ fontWeight: 600, color: '#222' }}>All Movies</Typography>
+        <Grid container spacing={4} justifyContent="center">
           {sampleMovies.map(movie => (
             <Grid item xs={12} sm={6} md={3} key={movie.id}>
-              <Card>
+              <Card sx={{ height: 420, display: 'flex', flexDirection: 'column', boxShadow: 2, borderRadius: 5, overflow: 'hidden', background: 'linear-gradient(120deg, #f6d365 0%, #fda085 100%)' }}>
                 <CardMedia
                   component="img"
-                  height="350"
+                  height="320"
                   image={movie.poster}
                   alt={movie.title}
+                  sx={{ objectFit: 'cover' }}
                 />
-                <CardContent>
-                  <Typography variant="h6">{movie.title}</Typography>
+                <CardContent sx={{ flexGrow: 1, textAlign: 'center', color: '#222' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600 }}>{movie.title}</Typography>
                   <Typography variant="body2" color="text.secondary">{movie.year}</Typography>
                 </CardContent>
               </Card>
