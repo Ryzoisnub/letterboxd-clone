@@ -49,6 +49,9 @@ const Login = ({ onLogin }) => {
             <Button type="submit" variant="contained" sx={{ mt: 2, borderRadius: 3, background: 'linear-gradient(90deg, #007aff 0%, #0051a8 100%)', color: '#fff', fontWeight: 600, fontSize: 17, py: 1.5, boxShadow: '0 2px 8px 0 rgba(0,122,255,0.10)' }}>Sign In</Button>
           </form>
           {error && <Typography color="error" align="center" sx={{ mt: 2, fontSize: 15 }}>{error}</Typography>}
+          <Typography align="center" sx={{ mt: 2, fontSize: 15 }}>
+            Don't have an account? <a href="/register" style={{ color: '#007aff', textDecoration: 'underline', cursor: 'pointer' }}>Sign Up</a>
+          </Typography>
         </Card>
       </Box>
     </>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Box, Card, Typography, Button, TextField } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -8,6 +9,7 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,8 +17,7 @@ const Register = () => {
     setMessage('');
     try {
       await axios.post('http://localhost:5000/api/auth/register', { username, email, password });
-      setMessage('Registration successful! You can now log in.');
-      setUsername(''); setEmail(''); setPassword('');
+      navigate('/login');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
     }
@@ -25,20 +26,20 @@ const Register = () => {
   return (
     <>
       <Box sx={{
-        minHeight: '100vh',
-        minWidth: '100vw',
         position: 'fixed',
         top: 0,
         left: 0,
+        width: '100vw',
+        height: '100vh',
         zIndex: -1,
         background: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('/src/assets/horror-collage.jpg') center/cover no-repeat`,
         backgroundAttachment: 'fixed',
       }} />
       <Box sx={{
         position: 'relative',
-        minHeight: '100vh',
+        width: '100vw',
+        height: '100vh',
         display: 'flex',
-        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1,
