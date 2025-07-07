@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -39,6 +40,22 @@ router.post('/login', async (req, res) => {
     // Create JWT
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
     res.json({ token, user: { id: user._id, username: user.username, email: user.email } });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Update profile
+router.put('/profile', authMiddleware, async (req, res) => {
+  try {
+    const { bio, avatar } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.user,
+      { bio, avatar },
+      { new: true }
+    );
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ message: 'Profile updated', user: { id: user._id, username: user.username, email: user.email, bio: user.bio, avatar: user.avatar } });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
