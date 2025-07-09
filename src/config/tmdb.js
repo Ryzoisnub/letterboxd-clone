@@ -36,4 +36,13 @@ export async function fetchGenres() {
   const res = await fetch(url, TMDB_API_OPTIONS);
   if (!res.ok) throw new Error('Failed to fetch genres');
   return res.json();
+}
+
+// Fetch trending movies
+export async function fetchTrendingMovies(timeWindow = 'day', page = 1) {
+  // timeWindow can be 'day' or 'week'
+  const url = `${TMDB_BASE_URL}/trending/movie/${timeWindow}?page=${page}`;
+  const res = await fetch(url, TMDB_API_OPTIONS);
+  if (!res.ok) throw new Error('Failed to fetch trending movies');
+  return res.json();
 } 

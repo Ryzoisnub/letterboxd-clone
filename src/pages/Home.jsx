@@ -1,29 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Box, Card, CardContent, CardMedia, Grid, Button, Avatar, Paper, TextField, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
-import MovieIcon from '@mui/icons-material/Movie';
-import StarIcon from '@mui/icons-material/Star';
-import ListAltIcon from '@mui/icons-material/ListAlt';
-import GroupIcon from '@mui/icons-material/Group';
-import { fetchPopularMovies, searchMovies, fetchGenres } from '../config/tmdb';
-import { TMDB_IMAGE_BASE_URL, POSTER_SIZE } from '../config/tmdb';
+import { Typography, Box, Card, CardContent, CardMedia, Grid, Button, Avatar, Paper, TextField, MenuItem, Select, InputLabel, FormControl, Tabs, Tab, AppBar, IconButton } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import { fetchTrendingMovies, fetchPopularMovies, searchMovies, fetchGenres } from '../config/tmdb';
+import { TMDB_IMAGE_BASE_URL, POSTER_SIZE, BACKDROP_SIZE } from '../config/tmdb';
 
-const heroBg = 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80';
-const features = [
-  { icon: <MovieIcon fontSize="large" />, title: 'Track every film', desc: 'Keep track of every film youve ever watched or want to see.' },
-  { icon: <StarIcon fontSize="large" />, title: 'Rate & Review', desc: 'Rate each film on a five-star scale and review your favorites.' },
-  { icon: <ListAltIcon fontSize="large" />, title: 'Create Lists', desc: 'Compile and share lists of films for any occasion.' },
-  { icon: <GroupIcon fontSize="large" />, title: 'Connect', desc: 'Follow friends and see what theyre watching.' },
+const NAV_LINKS = [
+  { label: 'Categories' },
+  { label: 'Recommended' },
+  { label: 'News' },
+  { label: 'Newsletter' },
 ];
-const reviews = [
-  { id: 1, user: 'filmfan', avatar: 'https://i.pravatar.cc/150?img=1', movie: 'Inception', review: 'A mind-bending masterpiece! Nolan at his best.', date: '2023-06-01' },
-  { id: 2, user: 'cinemalover', avatar: 'https://i.pravatar.cc/150?img=2', movie: 'La La Land', review: 'Beautiful music and visuals. A modern classic.', date: '2023-05-20' },
-];
-const lists = [
-  { id: 1, title: 'Top 10 Sci-Fi', user: 'filmfan', movies: ['Inception', 'Interstellar', 'Elio'] },
-  { id: 2, title: 'Best Musicals', user: 'cinemalover', movies: ['La La Land', 'Sorry, Baby'] },
+const CATEGORY_TABS = [
+  { label: 'All', value: 'all' },
+  { label: 'Latest', value: 'latest' },
+  { label: 'Coming Soon', value: 'upcoming' },
+  { label: 'Top Rated', value: 'top_rated' },
 ];
 
 function Home() {
+  const [trending, setTrending] = useState([]);
+  const [heroMovie, setHeroMovie] = useState(null);
+  const [carouselMovies, setCarouselMovies] = useState([]);
   const [movies, setMovies] = useState([]);
   const [genres, setGenres] = useState([]);
   const [search, setSearch] = useState('');
@@ -31,22 +29,51 @@ function Home() {
   const [releaseYear, setReleaseYear] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [tab, setTab] = useState('all');
 
   useEffect(() => {
-    setLoading(true);
-    fetchPopularMovies()
-      .then(data => {
-        setMovies(data.results || []);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError('Failed to load movies');
-        setLoading(false);
-      });
+    // Fetch trending for hero and carousel
+    fetchTrendingMovies('day').then(data => {
+      setTrending(data.results || []);
+      setHeroMovie(data.results?.[0] || null);
+      setCarouselMovies(data.results?.slice(1, 5) || []);
+    });
+    // Fetch genres
     fetchGenres().then(data => setGenres(data.genres || []));
+    // Fetch initial grid (all)
+    fetchPopularMovies().then(data => setMovies(data.results || []));
   }, []);
 
-  // Search and filter handler
+  // Tab/category handler
+  const handleTabChange = async (e, value) => {
+    setTab(value);
+    setLoading(true);
+    setError('');
+    try {
+      let data;
+      if (value === 'all') {
+        data = await fetchPopularMovies();
+      } else if (value === 'latest') {
+        data = await fetchPopularMovies(); // TMDB's /movie/latest is a single movie, so use popular as fallback
+      } else if (value === 'upcoming') {
+        const res = await fetch(`${process.env.REACT_APP_TMDB_BASE_URL || 'https://api.themoviedb.org/3'}/movie/upcoming`, {
+          ...TMDB_API_OPTIONS
+        });
+        data = await res.json();
+      } else if (value === 'top_rated') {
+        const res = await fetch(`${process.env.REACT_APP_TMDB_BASE_URL || 'https://api.themoviedb.org/3'}/movie/top_rated`, {
+          ...TMDB_API_OPTIONS
+        });
+        data = await res.json();
+      }
+      setMovies(data.results || []);
+    } catch {
+      setError('Failed to fetch movies');
+    }
+    setLoading(false);
+  };
+
+  // Search handler
   const handleSearch = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -54,12 +81,9 @@ function Home() {
     try {
       let data;
       if (search.trim()) {
-        console.log('Searching for:', search);
         data = await searchMovies(search);
-        console.log('Search API response:', data);
       } else {
         data = await fetchPopularMovies();
-        console.log('Popular movies API response:', data);
       }
       let filtered = data.results || [];
       if (selectedGenre) {
@@ -69,158 +93,172 @@ function Home() {
         filtered = filtered.filter(m => m.release_date && m.release_date.startsWith(releaseYear));
       }
       setMovies(filtered);
-    } catch (err) {
+    } catch {
       setError('Failed to fetch movies');
-      console.error('Error fetching movies:', err);
     }
     setLoading(false);
   };
 
-  // Years for release date filter
   const years = Array.from({ length: 40 }, (_, i) => `${2024 - i}`);
 
   return (
-    <Box sx={{ bgcolor: 'transparent', minHeight: '100vh', color: '#fff', fontFamily: 'SF Pro Display, Arial, sans-serif' }}>
-      {/* Hero Section */}
-      <Box sx={{ position: 'relative', width: '100%', minHeight: 420, display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 6 }}>
-        <Box sx={{
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-          background: `linear-gradient(180deg, rgba(24,28,36,0.8) 60%, #181c24 100%), url(${heroBg}) center/cover no-repeat`,
-          zIndex: 1,
-        }} />
-        <Box sx={{ position: 'relative', zIndex: 2, textAlign: 'center', py: 8, width: '100%' }}>
-          <Typography variant="h2" sx={{ fontWeight: 900, mb: 2, color: '#fff', textShadow: '0 2px 16px #000a' }}>
-            Track films you've watched.<br />Save those you want to see.<br />Tell your friends what's good.
-          </Typography>
-          <Button variant="contained" sx={{ mt: 3, fontWeight: 700, fontSize: 20, px: 5, py: 1.5, borderRadius: 3, background: 'linear-gradient(90deg, #00e676 0%, #00c853 100%)', color: '#181c24', boxShadow: '0 2px 8px #00e67644' }}>
-            Get started — it's free!
-          </Button>
+    <Box sx={{ minHeight: '100vh', width: '100%', bgcolor: '#fafbfc', color: '#222', fontFamily: 'SF Pro Display, Arial, sans-serif' }}>
+      {/* Nav Bar */}
+      <AppBar position="static" elevation={0} sx={{ bgcolor: 'transparent', boxShadow: 'none', py: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: 1400, mx: 'auto', px: 3 }}>
+          <Typography variant="h5" sx={{ fontWeight: 900, color: '#e53935', letterSpacing: 2 }}>CINEPLEX</Typography>
+          <Box sx={{ display: 'flex', gap: 4 }}>
+            {NAV_LINKS.map(link => (
+              <Button key={link.label} sx={{ color: '#222', fontWeight: 700, fontSize: 16, textTransform: 'none' }}>{link.label}</Button>
+            ))}
+          </Box>
         </Box>
+      </AppBar>
+      {/* Hero Section */}
+      {heroMovie && (
+        <Box sx={{ position: 'relative', width: '100%', minHeight: 480, display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 0 }}>
+          <Box sx={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            background: `linear-gradient(120deg, rgba(0,0,0,0.7) 60%, #fafbfc 100%), url(${TMDB_IMAGE_BASE_URL}/${BACKDROP_SIZE}${heroMovie.backdrop_path}) center/cover no-repeat`,
+            zIndex: 1,
+            filter: 'blur(0px)',
+          }} />
+          <Box sx={{ position: 'relative', zIndex: 2, textAlign: 'left', py: 8, px: 6, maxWidth: 1200, width: '100%' }}>
+            <Typography variant="h2" sx={{ fontWeight: 900, mb: 2, color: '#fff', textShadow: '0 2px 16px #000a' }}>
+              {heroMovie.title}
+            </Typography>
+            <Typography variant="h6" sx={{ color: '#fff', mb: 2, textShadow: '0 2px 8px #000a' }}>
+              {(heroMovie.genre_ids || []).map(id => genres.find(g => g.id === id)?.name).filter(Boolean).join(', ')}
+            </Typography>
+            <Button variant="contained" startIcon={<PlayArrowIcon />} sx={{
+              mt: 2,
+              fontWeight: 700,
+              fontSize: 18,
+              px: 4,
+              py: 1.5,
+              borderRadius: 3,
+              background: 'linear-gradient(90deg, #e53935 0%, #e35d5b 100%)',
+              color: '#fff',
+              boxShadow: '0 2px 16px #e5393544',
+              textTransform: 'none',
+            }}>
+              Watch Me
+            </Button>
+          </Box>
+        </Box>
+      )}
+      {/* Featured Carousel */}
+      {carouselMovies.length > 0 && (
+        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', mt: -8, mb: 6, zIndex: 3, position: 'relative' }}>
+          <Box sx={{ display: 'flex', gap: 4, px: 2, overflowX: 'auto', maxWidth: 1200 }}>
+            {carouselMovies.map(movie => (
+              <Card key={movie.id} sx={{
+                minWidth: 220,
+                maxWidth: 220,
+                height: 320,
+                borderRadius: 4,
+                boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.18)',
+                overflow: 'hidden',
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'flex-end',
+                background: '#fff',
+              }}>
+                <CardMedia
+                  component="img"
+                  image={movie.poster_path ? `${TMDB_IMAGE_BASE_URL}/${POSTER_SIZE}${movie.poster_path}` : 'https://via.placeholder.com/500x750?text=No+Image'}
+                  alt={movie.title}
+                  sx={{ width: 220, height: 300, objectFit: 'cover' }}
+                />
+                <CardContent sx={{ position: 'absolute', bottom: 0, left: 0, width: '100%', bgcolor: 'rgba(0,0,0,0.55)', color: '#fff', p: 2 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>{movie.title}</Typography>
+                </CardContent>
+                <Box sx={{ position: 'absolute', top: 12, right: 12, bgcolor: '#e53935', color: '#fff', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16 }}>•</Box>
+              </Card>
+            ))}
+          </Box>
+        </Box>
+      )}
+      {/* Tabs for Categories */}
+      <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', mb: 2 }}>
+        <Tabs value={tab} onChange={handleTabChange} centered textColor="secondary" indicatorColor="secondary" sx={{
+          '& .MuiTabs-indicator': { backgroundColor: '#e53935', height: 4, borderRadius: 2 },
+        }}>
+          {CATEGORY_TABS.map(t => (
+            <Tab key={t.value} label={t.label} value={t.value} sx={{ fontWeight: 700, fontSize: 16, color: tab === t.value ? '#e53935' : '#222', textTransform: 'none' }} />
+          ))}
+        </Tabs>
       </Box>
-      {/* Search & Filter */}
-      <Box sx={{ maxWidth: 1200, mx: 'auto', mb: 4, display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center' }}>
-        <form onSubmit={handleSearch} style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center', width: '100%', justifyContent: 'center' }}>
+      {/* Search Bar */}
+      <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', mb: 4 }}>
+        <form onSubmit={handleSearch} style={{ display: 'flex', gap: 8, alignItems: 'center', background: '#fff', borderRadius: 32, boxShadow: '0 2px 12px #e5393522', padding: '6px 24px', minWidth: 320, maxWidth: 480, width: '100%' }}>
           <TextField
-            label="Search movies"
-            variant="outlined"
-            size="small"
+            placeholder="Search ..."
+            variant="standard"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            sx={{ bgcolor: '#232a36', borderRadius: 2, input: { color: '#fff' }, label: { color: '#b0b8c1' }, minWidth: 220 }}
-            InputLabelProps={{ style: { color: '#b0b8c1' } }}
+            InputProps={{ disableUnderline: true, style: { fontSize: 18, color: '#222', background: 'transparent' } }}
+            sx={{ flex: 1, fontSize: 18, background: 'transparent' }}
           />
-          <FormControl sx={{ minWidth: 160 }} size="small">
-            <InputLabel id="genre-label" sx={{ color: '#b0b8c1' }}>Genre</InputLabel>
-            <Select
-              labelId="genre-label"
-              value={selectedGenre}
-              label="Genre"
-              onChange={e => setSelectedGenre(e.target.value)}
-              sx={{ bgcolor: '#232a36', color: '#fff', borderRadius: 2 }}
-            >
-              <MenuItem value="">All</MenuItem>
-              {genres.map(g => (
-                <MenuItem key={g.id} value={g.id}>{g.name}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl sx={{ minWidth: 120 }} size="small">
-            <InputLabel id="year-label" sx={{ color: '#b0b8c1' }}>Year</InputLabel>
-            <Select
-              labelId="year-label"
-              value={releaseYear}
-              label="Year"
-              onChange={e => setReleaseYear(e.target.value)}
-              sx={{ bgcolor: '#232a36', color: '#fff', borderRadius: 2 }}
-            >
-              <MenuItem value="">All</MenuItem>
-              {years.map(y => (
-                <MenuItem key={y} value={y}>{y}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Button type="submit" variant="contained" sx={{ fontWeight: 700, borderRadius: 2, px: 3, py: 1, background: 'linear-gradient(90deg, #1976d2 0%, #90caf9 100%)', color: '#181c24', boxShadow: '0 2px 8px #1976d244' }}>Search</Button>
+          <IconButton type="submit" sx={{ color: '#e53935', fontSize: 28 }}>
+            <SearchIcon />
+          </IconButton>
         </form>
       </Box>
       {/* Movie Grid */}
-      <Box sx={{ maxWidth: 1200, mx: 'auto', mb: 5 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: '#fff' }}>Movies</Typography>
-        {loading ? (
-          <Typography>Loading...</Typography>
-        ) : error ? (
-          <Typography color="error">{error}</Typography>
-        ) : (
-          <Grid container spacing={3} justifyContent="flex-start">
-            {movies.length === 0 && (
-              <Typography sx={{ ml: 2 }}>No movies found.</Typography>
-            )}
-            {movies.map(movie => (
-              <Grid item xs={12} sm={6} md={3} key={movie.id}>
-                <Card sx={{ bgcolor: '#232a36', borderRadius: 3, boxShadow: 3 }}>
-                  <CardMedia
-                    component="img"
-                    image={movie.poster_path ? `${TMDB_IMAGE_BASE_URL}/${POSTER_SIZE}${movie.poster_path}` : 'https://via.placeholder.com/500x750?text=No+Image'}
-                    alt={movie.title}
-                    sx={{ height: 320, objectFit: 'cover', borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
-                  />
-                  <CardContent sx={{ textAlign: 'center', color: '#fff', p: 2 }}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>{movie.title}</Typography>
-                    <Typography variant="body2" color="text.secondary">{movie.release_date ? movie.release_date.substring(0, 4) : 'N/A'}</Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        )}
-      </Box>
-      {/* Feature Grid */}
-      <Box sx={{ maxWidth: 1200, mx: 'auto', mb: 5 }}>
-        <Grid container spacing={3} justifyContent="center">
-          {features.map((f, i) => (
-            <Grid item xs={12} sm={6} md={3} key={i}>
-              <Paper sx={{ bgcolor: '#232a36', p: 3, borderRadius: 3, textAlign: 'center', color: '#fff', boxShadow: 2 }}>
-                {f.icon}
-                <Typography variant="h6" sx={{ fontWeight: 700, mt: 1 }}>{f.title}</Typography>
-                <Typography variant="body2" color="text.secondary">{f.desc}</Typography>
-              </Paper>
+      <Box sx={{ maxWidth: 1200, mx: 'auto', mb: 8 }}>
+        <Grid container spacing={4} justifyContent="center" alignItems="flex-start">
+          {loading ? (
+            <Typography>Loading...</Typography>
+          ) : error ? (
+            <Typography color="error">{error}</Typography>
+          ) : movies.length === 0 ? (
+            <Typography sx={{ ml: 2 }}>No movies found.</Typography>
+          ) : movies.map(movie => (
+            <Grid item xs={12} sm={6} md={3} key={movie.id} sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Card sx={{
+                bgcolor: '#fff',
+                borderRadius: 4,
+                boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.10)',
+                overflow: 'hidden',
+                transition: 'transform 0.2s',
+                width: 220,
+                minWidth: 220,
+                maxWidth: 220,
+                height: 340,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                '&:hover': {
+                  transform: 'scale(1.04)',
+                  boxShadow: '0 16px 40px 0 rgba(31, 38, 135, 0.18)',
+                },
+              }}>
+                <CardMedia
+                  component="img"
+                  image={movie.poster_path ? `${TMDB_IMAGE_BASE_URL}/${POSTER_SIZE}${movie.poster_path}` : 'https://via.placeholder.com/500x750?text=No+Image'}
+                  alt={movie.title}
+                  sx={{
+                    width: 220,
+                    height: 280,
+                    objectFit: 'cover',
+                    borderTopLeftRadius: 12,
+                    borderTopRightRadius: 12,
+                  }}
+                />
+                <CardContent sx={{ textAlign: 'center', color: '#222', p: 2, width: '100%', flexGrow: 1 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700, fontSize: 16, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{movie.title}</Typography>
+                  <Typography variant="body2" sx={{ color: '#888', fontSize: 14, mt: 0.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {(movie.genre_ids || []).map(id => genres.find(g => g.id === id)?.name).filter(Boolean).join(', ')}
+                  </Typography>
+                </CardContent>
+              </Card>
             </Grid>
           ))}
         </Grid>
-      </Box>
-      {/* Recent Reviews */}
-      <Box sx={{ maxWidth: 1200, mx: 'auto', mb: 5 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: '#fff' }}>Just Reviewed</Typography>
-        <Box sx={{ display: 'flex', overflowX: 'auto', gap: 3, pb: 2 }}>
-          {reviews.map(r => (
-            <Card key={r.id} sx={{ minWidth: 320, maxWidth: 320, bgcolor: '#232a36', borderRadius: 3, boxShadow: 3, flex: '0 0 auto', display: 'flex', flexDirection: 'row', alignItems: 'flex-start', p: 2 }}>
-              <Avatar src={r.avatar} sx={{ width: 48, height: 48, mr: 2, mt: 1 }} />
-              <Box>
-                <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{r.user}</Typography>
-                <Typography variant="body2" color="text.secondary">{r.movie} — {r.date}</Typography>
-                <Typography variant="body1" sx={{ mt: 1 }}>{r.review}</Typography>
-              </Box>
-            </Card>
-          ))}
-        </Box>
-      </Box>
-      {/* Popular Lists */}
-      <Box sx={{ maxWidth: 1200, mx: 'auto', mb: 8 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: '#fff' }}>Popular Lists</Typography>
-        <Box sx={{ display: 'flex', overflowX: 'auto', gap: 3, pb: 2 }}>
-          {lists.map(list => (
-            <Card key={list.id} sx={{ minWidth: 260, maxWidth: 260, bgcolor: '#232a36', borderRadius: 3, boxShadow: 3, flex: '0 0 auto', p: 2 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>{list.title}</Typography>
-              <Typography variant="body2" color="text.secondary">by {list.user}</Typography>
-              <Box sx={{ display: 'flex', gap: 1, mt: 1, flexWrap: 'wrap' }}>
-                {list.movies.map((m, i) => (
-                  <Paper key={i} sx={{ bgcolor: '#181c24', color: '#fff', px: 1.5, py: 0.5, borderRadius: 2, fontSize: 13, fontWeight: 600, boxShadow: 1, mb: 1 }}>{m}</Paper>
-                ))}
-              </Box>
-            </Card>
-          ))}
-        </Box>
       </Box>
     </Box>
   );
