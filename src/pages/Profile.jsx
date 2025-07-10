@@ -62,27 +62,27 @@ function Profile({ user: loggedInUser }) {
   };
 
   return (
-    <Box sx={{ bgcolor: 'linear-gradient(135deg, #232a36 0%, #181c24 100%)', minHeight: '100vh', color: '#fff', fontFamily: 'SF Pro Display, Arial, sans-serif', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <Box sx={{ bgcolor: '#fff', minHeight: '100vh', color: '#222', fontFamily: 'SF Pro Display, Arial, sans-serif', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {/* Banner and Avatar */}
       <Box sx={{ position: 'relative', width: '100%', maxWidth: 900, minHeight: 160, mb: 2, overflow: 'visible', display: 'flex', flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'center' }}>
         <Box sx={{
           position: 'absolute',
           width: '100%',
           height: '100%',
-          background: `linear-gradient(180deg, rgba(24,28,36,0.8) 60%, #181c24 100%), url(${bannerBg}) center/cover no-repeat`,
+          background: `linear-gradient(180deg, rgba(255,255,255,0.95) 100%, #fff 100%), url(${bannerBg}) center/cover no-repeat`,
           zIndex: 1,
-          filter: 'blur(1.2px) brightness(0.8)',
+          filter: 'blur(1.2px) brightness(1)',
           borderRadius: 5,
         }} />
         <Box sx={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', pl: 0, pb: 2, height: '100%', width: '100%', justifyContent: 'center' }}>
-          <Box sx={{ position: 'relative', mr: 4, boxShadow: 6, borderRadius: '50%', background: 'rgba(24,28,36,0.7)', backdropFilter: 'blur(6px)', p: 0.5, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Avatar src={avatarPreview || 'https://i.pravatar.cc/150?img=3'} sx={{ width: 90, height: 90, border: '4px solid #00e676', boxShadow: 6, position: 'relative', zIndex: 2, mb: 1 }} />
+          <Box sx={{ position: 'relative', mr: 4, boxShadow: 6, borderRadius: '50%', background: 'rgba(255,255,255,1)', backdropFilter: 'blur(6px)', p: 0.5, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Avatar src={avatarPreview || 'https://i.pravatar.cc/150?img=3'} sx={{ width: 90, height: 90, border: '4px solid #e53935', boxShadow: 6, position: 'relative', zIndex: 2, mb: 1 }} />
             <Button
               variant="contained"
               sx={{
                 mt: 1,
-                background: 'linear-gradient(90deg, #00e676 0%, #00c853 100%)',
-                color: '#181c24',
+                background: 'linear-gradient(90deg, #e53935 0%, #e35d5b 100%)',
+                color: '#fff',
                 fontWeight: 700,
                 borderRadius: 3,
                 boxShadow: 2,
@@ -91,7 +91,7 @@ function Profile({ user: loggedInUser }) {
                 textTransform: 'none',
                 fontSize: 15,
                 minWidth: 90,
-                '&:hover': { background: 'linear-gradient(90deg, #00c853 0%, #00e676 100%)', boxShadow: 4 },
+                '&:hover': { background: 'linear-gradient(90deg, #e35d5b 0%, #e53935 100%)', boxShadow: 4 },
               }}
               onClick={() => fileInputRef.current.click()}
             >
@@ -106,17 +106,17 @@ function Profile({ user: loggedInUser }) {
             />
           </Box>
           <Box sx={{ ml: 2, minWidth: 0 }}>
-            <Typography variant="h3" sx={{ fontWeight: 900, color: '#fff', textShadow: '0 2px 12px #000a', letterSpacing: 1, fontSize: 36, mb: 0.5, lineHeight: 1 }}>{username}</Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500, fontSize: 17, mb: 0.5 }}>{email}</Typography>
+            <Typography variant="h3" sx={{ fontWeight: 900, color: '#222', textShadow: '0 2px 12px #fff8', letterSpacing: 1, fontSize: 36, mb: 0.5, lineHeight: 1 }}>{username}</Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500, fontSize: 17, mb: 0.5, color: '#555' }}>{email}</Typography>
           </Box>
         </Box>
       </Box>
       {/* Reviews Grid */}
       <Box sx={{ width: '100%', maxWidth: 1100, mx: 'auto', mb: 6, px: 2 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800, mb: 2, color: '#fff', letterSpacing: 1 }}>Your Reviews</Typography>
+        <Typography variant="h4" sx={{ fontWeight: 800, mb: 2, color: '#e53935', letterSpacing: 1 }}>Your Reviews</Typography>
         {reviews.length === 0 ? (
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 120 }}>
-            <Typography variant="h4" align="center" sx={{ color: '#b0b8c1', fontWeight: 700, letterSpacing: 2, opacity: 0.7, border: '2px dashed #00e676', borderRadius: 3, px: 4, py: 2, background: alpha('#232a36', 0.5), boxShadow: 2 }}>
+            <Typography variant="h4" align="center" sx={{ color: '#b0b8c1', fontWeight: 700, letterSpacing: 2, opacity: 0.7, border: '2px dashed #e53935', borderRadius: 3, px: 4, py: 2, background: '#fff', boxShadow: 2 }}>
               NO REVIEWS YET
             </Typography>
           </Box>
@@ -129,16 +129,17 @@ function Profile({ user: loggedInUser }) {
                     position: 'relative',
                     minHeight: 180,
                     borderRadius: 4,
-                    boxShadow: 6,
+                    boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.08)',
                     overflow: 'hidden',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'flex-end',
                     p: 0,
-                    border: '1.5px solid #00e67644',
+                    border: '1.5px solid #e5393533',
                     transition: 'transform 0.2s, box-shadow 0.2s',
                     '&:hover': { transform: 'scale(1.03)', boxShadow: 12 },
                     backdropFilter: 'blur(6px)',
+                    background: '#fff',
                   }}
                 >
                   {/* Dimmed poster background */}
@@ -149,15 +150,15 @@ function Profile({ user: loggedInUser }) {
                       left: 0,
                       width: '100%',
                       height: '100%',
-                      background: `linear-gradient(180deg, rgba(24,28,36,0.7) 60%, #181c24 100%), url(${r.poster}) center/cover no-repeat`,
-                      filter: 'brightness(0.6) blur(1.5px)',
+                      background: `linear-gradient(180deg, rgba(255,255,255,0.7) 60%, #fff 100%), url(${r.poster}) center/cover no-repeat`,
+                      filter: 'brightness(0.7) blur(1.5px)',
                       zIndex: 1,
                     }}
                   />
-                  <Box sx={{ position: 'relative', zIndex: 2, p: 2, bgcolor: alpha('#232a36', 0.7), borderRadius: 4, m: 1, boxShadow: 2 }}>
-                    <Typography variant="h6" sx={{ fontWeight: 800, color: '#fff', mb: 1 }}>{r.movie}</Typography>
-                    <Typography variant="body2" sx={{ color: '#b0b8c1', mb: 1 }}>{r.date}</Typography>
-                    <Typography variant="body1" sx={{ color: '#fff', fontWeight: 500 }}>{r.review}</Typography>
+                  <Box sx={{ position: 'relative', zIndex: 2, p: 2, bgcolor: '#fff', borderRadius: 4, m: 1, boxShadow: 2 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 800, color: '#e53935', mb: 1 }}>{r.movie}</Typography>
+                    <Typography variant="body2" sx={{ color: '#888', mb: 1 }}>{r.date}</Typography>
+                    <Typography variant="body1" sx={{ color: '#222', fontWeight: 500 }}>{r.review}</Typography>
                   </Box>
                 </Paper>
               </Grid>
