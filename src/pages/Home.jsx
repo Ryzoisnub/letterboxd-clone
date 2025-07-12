@@ -202,42 +202,73 @@ function Home() {
             <Typography sx={{ ml: 2 }}>No movies found.</Typography>
           ) : movies.map(movie => (
             <Grid item xs={12} sm={6} md={3} key={movie.id} sx={{ display: 'flex', justifyContent: 'center' }}>
-              <Card sx={{
-                bgcolor: '#fff',
-                borderRadius: 4,
-                boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.10)',
-                overflow: 'hidden',
-                transition: 'transform 0.2s',
-                width: 220,
-                minWidth: 220,
-                maxWidth: 220,
-                height: 340,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                '&:hover': {
-                  transform: 'scale(1.04)',
-                  boxShadow: '0 16px 40px 0 rgba(31, 38, 135, 0.18)',
-                },
-              }}>
+              <Card
+                sx={{
+                  bgcolor: '#fff',
+                  boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.10)',
+                  overflow: 'hidden',
+                  transition: 'transform 0.2s',
+                  width: 220,
+                  height: 320,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  position: 'relative',
+                  p: 0,
+                  m: 0,
+                  borderRadius: 0,
+                  '&:hover': {
+                    transform: 'scale(1.04)',
+                    boxShadow: '0 16px 40px 0 rgba(31, 38, 135, 0.18)',
+                  },
+                }}
+              >
                 <CardMedia
                   component="img"
                   image={movie.poster_path ? `${TMDB_IMAGE_BASE_URL}/${POSTER_SIZE}${movie.poster_path}` : 'https://via.placeholder.com/500x750?text=No+Image'}
                   alt={movie.title}
                   sx={{
                     width: 220,
-                    height: 280,
+                    height: 320,
                     objectFit: 'cover',
-                    borderTopLeftRadius: 12,
-                    borderTopRightRadius: 12,
+                    borderRadius: 0,
+                    p: 0,
+                    m: 0,
                   }}
                 />
-                <CardContent sx={{ textAlign: 'center', color: '#222', p: 2, width: '100%', flexGrow: 1 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 700, fontSize: 16, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{movie.title}</Typography>
-                  <Typography variant="body2" sx={{ color: '#888', fontSize: 14, mt: 0.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {(movie.genre_ids || []).map(id => genres.find(g => g.id === id)?.name).filter(Boolean).join(', ')}
-                  </Typography>
-                </CardContent>
+                {/* Hover overlay for movie title */}
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    bgcolor: 'rgba(0,0,0,0.65)',
+                    color: '#fff',
+                    opacity: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 700,
+                    fontSize: 20,
+                    letterSpacing: 1,
+                    transition: 'opacity 0.2s',
+                    borderRadius: 0,
+                    pointerEvents: 'none',
+                    zIndex: 2,
+                    '&:hover': {
+                      opacity: 1,
+                      pointerEvents: 'auto',
+                    },
+                    '.MuiCard-root:hover &': {
+                      opacity: 1,
+                      pointerEvents: 'auto',
+                    },
+                  }}
+                >
+                  {movie.title}
+                </Box>
               </Card>
             </Grid>
           ))}
