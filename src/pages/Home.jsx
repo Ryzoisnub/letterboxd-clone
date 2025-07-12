@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Typography, Box, Card, CardContent, CardMedia, Grid, Button, Avatar, Paper, TextField, MenuItem, Select, InputLabel, FormControl, Tabs, Tab, AppBar, IconButton } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import { fetchTrendingMovies, fetchPopularMovies, searchMovies, fetchGenres } from '../config/tmdb';
+import { fetchTrendingMovies, fetchPopularMovies, searchMovies, fetchGenres, fetchUpcomingMovies, fetchTopRatedMovies } from '../config/tmdb';
 import { TMDB_IMAGE_BASE_URL, POSTER_SIZE, BACKDROP_SIZE } from '../config/tmdb';
 
 const NAV_LINKS = [
@@ -56,15 +56,9 @@ function Home() {
       } else if (value === 'latest') {
         data = await fetchPopularMovies(); // TMDB's /movie/latest is a single movie, so use popular as fallback
       } else if (value === 'upcoming') {
-        const res = await fetch(`${process.env.REACT_APP_TMDB_BASE_URL || 'https://api.themoviedb.org/3'}/movie/upcoming`, {
-          ...TMDB_API_OPTIONS
-        });
-        data = await res.json();
+        data = await fetchUpcomingMovies();
       } else if (value === 'top_rated') {
-        const res = await fetch(`${process.env.REACT_APP_TMDB_BASE_URL || 'https://api.themoviedb.org/3'}/movie/top_rated`, {
-          ...TMDB_API_OPTIONS
-        });
-        data = await res.json();
+        data = await fetchTopRatedMovies();
       }
       setMovies(data.results || []);
     } catch {
