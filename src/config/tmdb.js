@@ -16,33 +16,50 @@ export const TMDB_API_OPTIONS = {
 
 // Fetch popular movies
 export async function fetchPopularMovies(page = 1) {
-  const url = `${TMDB_BASE_URL}/movie/popular?page=${page}`;
-  const res = await fetch(url, TMDB_API_OPTIONS);
+  // Call backend proxy instead of TMDB directly
+  const url = `/api/tmdb/popular?page=${page}`;
+  const res = await fetch(url);
   if (!res.ok) throw new Error('Failed to fetch popular movies');
   return res.json();
 }
 
 // Search movies by query
 export async function searchMovies(query, page = 1) {
-  const url = `${TMDB_BASE_URL}/search/movie?query=${encodeURIComponent(query)}&page=${page}`;
-  const res = await fetch(url, TMDB_API_OPTIONS);
+  const url = `/api/tmdb/search?query=${encodeURIComponent(query)}&page=${page}`;
+  const res = await fetch(url);
   if (!res.ok) throw new Error('Failed to search movies');
   return res.json();
 }
 
 // Fetch genres
 export async function fetchGenres() {
-  const url = `${TMDB_BASE_URL}/genre/movie/list`;
-  const res = await fetch(url, TMDB_API_OPTIONS);
+  const url = `/api/tmdb/genres`;
+  const res = await fetch(url);
   if (!res.ok) throw new Error('Failed to fetch genres');
   return res.json();
 }
 
 // Fetch trending movies
 export async function fetchTrendingMovies(timeWindow = 'day', page = 1) {
-  // timeWindow can be 'day' or 'week'
-  const url = `${TMDB_BASE_URL}/trending/movie/${timeWindow}?page=${page}`;
-  const res = await fetch(url, TMDB_API_OPTIONS);
+  // Only 'day' is supported in backend proxy for now
+  const url = `/api/tmdb/trending?page=${page}`;
+  const res = await fetch(url);
   if (!res.ok) throw new Error('Failed to fetch trending movies');
+  return res.json();
+}
+
+// Fetch upcoming movies
+export async function fetchUpcomingMovies(page = 1) {
+  const url = `/api/tmdb/upcoming?page=${page}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Failed to fetch upcoming movies');
+  return res.json();
+}
+
+// Fetch top rated movies
+export async function fetchTopRatedMovies(page = 1) {
+  const url = `/api/tmdb/top_rated?page=${page}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Failed to fetch top rated movies');
   return res.json();
 } 

@@ -10,22 +10,22 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import React, { useState, useEffect } from 'react'
 
-const darkTheme = createTheme({
+const lightTheme = createTheme({
   palette: {
-    mode: 'dark',
+    mode: 'light',
     background: {
-      default: '#181c24',
-      paper: '#232a36',
+      default: '#fff',
+      paper: '#fff',
     },
     primary: {
       main: '#1976d2',
     },
     secondary: {
-      main: '#90caf9',
+      main: '#e53935',
     },
     text: {
-      primary: '#fff',
-      secondary: '#b0b8c1',
+      primary: '#222',
+      secondary: '#888',
     },
   },
   typography: {
@@ -59,7 +59,7 @@ function App() {
   // If not logged in, only show login/register
   if (!user) {
     return (
-      <ThemeProvider theme={darkTheme}>
+      <ThemeProvider theme={lightTheme}>
         <CssBaseline />
         <Router>
           <Routes>
@@ -73,35 +73,32 @@ function App() {
 
   // If logged in, show the app with logout button at top right
   return (
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={lightTheme}>
       <CssBaseline />
       <Router>
-        <Box sx={{ minHeight: '100vh', minWidth: '100vw', background: 'linear-gradient(135deg, #232a36 0%, #181c24 100%)', fontFamily: 'SF Pro Display, Arial, sans-serif' }}>
+        <Box sx={{ minHeight: '100vh', minWidth: '100vw', background: '#fff', fontFamily: 'SF Pro Display, Arial, sans-serif' }}>
           <AppBar position="static" elevation={0} sx={{
-            background: 'linear-gradient(90deg, #232a36 0%, #181c24 100%)',
-            boxShadow: '0 2px 12px 0 rgba(0,0,0,0.25)',
+            background: '#fff',
+            boxShadow: '0 2px 8px #eee',
             py: 1,
-            borderBottom: '1px solid #222',
+            borderBottom: '1px solid #eee',
           }}>
             <Toolbar sx={{ justifyContent: 'space-between', flexDirection: 'row', gap: 1 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Button component={Link} to="/" color="inherit" startIcon={<HomeIcon />} sx={{ fontWeight: 700, textTransform: 'none', fontSize: 18, letterSpacing: 1, px: 2, borderRadius: 2, '&:hover': { background: 'rgba(25, 118, 210, 0.15)' } }}>Home</Button>
-                <Button component={Link} to="/profile" color="inherit" startIcon={<AccountCircleIcon />} sx={{ fontWeight: 700, textTransform: 'none', fontSize: 18, letterSpacing: 1, px: 2, borderRadius: 2, '&:hover': { background: 'rgba(25, 118, 210, 0.15)' } }}>Profile</Button>
+                <Button component={Link} to="/" color="inherit" startIcon={<HomeIcon />} sx={{ fontWeight: 700, textTransform: 'none', fontSize: 18, letterSpacing: 1, px: 2, borderRadius: 2, color: '#222', '&:hover': { background: '#f5f5f5' } }}>Home</Button>
+                <Button component={Link} to="/profile" color="inherit" startIcon={<AccountCircleIcon />} sx={{ fontWeight: 700, textTransform: 'none', fontSize: 18, letterSpacing: 1, px: 2, borderRadius: 2, color: '#222', '&:hover': { background: '#f5f5f5' } }}>Profile</Button>
               </Box>
-              <Typography variant="h6" component="div" sx={{ flexGrow: 1, textAlign: 'center', fontWeight: 800, letterSpacing: 2, color: '#fff', fontFamily: 'SF Pro Display, Arial, sans-serif', textShadow: '0 2px 8px #0008' }}>
-                Letterboxd Clone
-              </Typography>
               <Box>
                 <Button color="inherit" onClick={handleLogout} sx={{
                   borderRadius: 3,
                   px: 3,
                   py: 1,
-                  background: 'rgba(255,255,255,0.08)',
-                  color: '#fff',
+                  background: '#f5f5f5',
+                  color: '#222',
                   fontWeight: 600,
                   fontSize: 16,
                   boxShadow: 1,
-                  '&:hover': { background: 'rgba(255,255,255,0.18)' },
+                  '&:hover': { background: '#eee' },
                   position: 'absolute',
                   right: 24,
                   top: 16

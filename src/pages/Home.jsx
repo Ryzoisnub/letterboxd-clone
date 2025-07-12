@@ -102,18 +102,7 @@ function Home() {
   const years = Array.from({ length: 40 }, (_, i) => `${2024 - i}`);
 
   return (
-    <Box sx={{ minHeight: '100vh', width: '100%', bgcolor: '#fafbfc', color: '#222', fontFamily: 'SF Pro Display, Arial, sans-serif' }}>
-      {/* Nav Bar */}
-      <AppBar position="static" elevation={0} sx={{ bgcolor: 'transparent', boxShadow: 'none', py: 2 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: 1400, mx: 'auto', px: 3 }}>
-          <Typography variant="h5" sx={{ fontWeight: 900, color: '#e53935', letterSpacing: 2 }}>CINEPLEX</Typography>
-          <Box sx={{ display: 'flex', gap: 4 }}>
-            {NAV_LINKS.map(link => (
-              <Button key={link.label} sx={{ color: '#222', fontWeight: 700, fontSize: 16, textTransform: 'none' }}>{link.label}</Button>
-            ))}
-          </Box>
-        </Box>
-      </AppBar>
+    <Box sx={{ minHeight: '100vh', width: '100%', bgcolor: '#fff', color: '#222', fontFamily: 'SF Pro Display, Arial, sans-serif' }}>
       {/* Hero Section */}
       {heroMovie && (
         <Box sx={{ position: 'relative', width: '100%', minHeight: 480, display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 0 }}>
